@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method — Hacker Index</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <h1><a href="./">Hacker Index</a></h1>
+    <p class="lede">How the list is built, what it gets wrong, and how to check us.</p>
+  </div>
+</header>
+
+<main class="wrap prose">
+  <h2>The one rule</h2>
+  <p>
+    A thing ranks by <strong>how many different people recommended it</strong> — not by how
+    many times it was mentioned. One person posting a title ten times is one person.
+    This is the whole difference between a list and a signal.
+  </p>
+
+  <h2>Where the data comes from</h2>
+  <p>
+    The complete Hacker News archive: <strong>49.3 million items, October 2006 to today</strong>,
+    mirrored on Hugging Face as monthly parquet
+    (<a href="https://huggingface.co/datasets/open-index/hacker-news" rel="noopener">open-index/hacker-news</a>,
+    ODC-BY). Every row here is a link somebody actually posted.
+  </p>
+
+  <h2>How an entity is found</h2>
+  <ol>
+    <li><strong>Links first.</strong> Every outbound URL in a story or comment is extracted.
+        Older HN comments store some URLs HTML-escaped (<code>http:&amp;#x2F;&amp;#x2F;…</code>);
+        those are unescaped before parsing, which recovers roughly 60% of links that a naive
+        regex misses.</li>
+    <li><strong>The comment's own anchor text is the title.</strong> People link with the
+        work's name, so we do not have to guess. For bare links the title is resolved
+        afterwards from YouTube oEmbed, the iTunes lookup API, Steam's appdetails,
+        Open Library (ISBN) or the arXiv API — results are cached in the repo.</li>
+    <li><strong>Keys are ids, not strings.</strong> ASIN, arXiv id, IMDb <code>tt</code>,
+        Steam appid, YouTube id, <code>owner/repo</code>. A normalised URL is the fallback.
+        We do <em>not</em> fuzzy-merge: a wrong merge costs more trust than a split.</li>
+  </ol>
+
+  <h2>How "recommended" is decided</h2>
+  <p>
+    Two passes. A keyword gate first — explicit praise only (<em>recommend, worth reading,
+    must-read, excellent…</em>), plus story score ≥ 25 for submissions, since a submission's
+    upvotes are the endorsement. Survivors then go to a cheap LLM that labels each comment
+    <em>recommend / critical / neutral</em> with the comment body as context. Verdicts are
+    stored with the model name and prompt version, so any number on this site can be traced
+    back to the decision that produced it.
+  </p>
+  <p>
+    Every row links to the actual comment. If a label looks wrong, the comment is one click away —
+    that is the point.
+  </p>
+
+  <h2>What this gets wrong</h2>
+  <ul>
+    <li><strong>Text-only recommendations are under-counted — and we can measure how badly.</strong>
+        If someone writes "read Snow Crash, it called all of this" with no link, we miss it.
+        Benchmark: our book ranking overlaps HackerBooks' public top-200 at
+        <strong>29.5%</strong>. That is the honest number, and it is why the Books tab carries a
+        caveat. Videos, tools and papers do not have this problem — for those, a link
+        <em>is</em> the recommendation, so recall is essentially complete.</li>
+    <li><strong>Duplicate editions.</strong> The same book under two ASINs, a paperback and a
+        hardcover, stays separate. Conservative on purpose, still wrong.</li>
+    <li><strong>Comment upvotes are not in the archive.</strong> We can only weight submissions
+        by score, not the replies underneath them.</li>
+    <li><strong>Old links die.</strong> Some entities point at pages that no longer exist;
+        the comment that recommended them still does.</li>
+    <li><strong>Sarcasm.</strong> The LLM pass catches most of it, not all of it.</li>
+  </ul>
+
+  <h2>Check us</h2>
+  <p>
+    The dataset is a plain CSV: <a href="data/entities.csv.gz">entities.csv</a> —
+    key, type, title, url, mentions, recommends, criticals, distinct recommenders, first and
+    last seen. The pipeline that produced it is a few hundred lines of Python in
+    <code>src/</code> and runs end to end: download, extract, tag, aggregate, export.
+  </p>
+  <p>
+    Known benchmark: our book ranking is compared against
+    <a href="https://hackerbooks.org" rel="noopener">HackerBooks</a>' public CSV on every
+    build. Current result: <strong>29.5% overlap on their top 200</strong> — reported here
+    rather than hidden, because the failure mode (text-only mentions) is the most useful
+    thing we learned.
+  </p>
+
+  <h2>What this is not</h2>
+  <p>
+    No accounts, no tracking, no recommendation algorithm. Nothing is stored about you.
+    There is no "for you" — the entire premise is that the crowd's explicit recommendations,
+    with the receipts attached, beat a model guessing what you will click.
+  </p>
+
+  <p class="back"><a href="./">← back to the index</a></p>
+</main>
+</body>
+</html>

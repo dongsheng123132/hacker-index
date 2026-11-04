@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hacker Index — what Hacker News keeps recommending</title>
+<meta name="description" content="Every book, paper, video, podcast, film, game, album and tool that Hacker News has kept recommending for 20 years — with the receipts.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <div class="topline">
+      <h1>Hacker Index</h1>
+      <div class="lang" id="lang"></div>
+    </div>
+    <p class="lede" id="lede"></p>
+    <p class="stats" id="stats">loading…</p>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main class="wrap">
+  <div class="intro" id="intro" style="display:none"></div>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Search titles…" autocomplete="off" spellcheck="false">
+    <span class="count" id="count"></span>
+  </div>
+  <p class="note" id="note" style="display:none"></p>
+  <ol class="list" id="list"></ol>
+  <p class="foot" id="foot"></p>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
