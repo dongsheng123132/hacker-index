@@ -23,7 +23,7 @@ const I18N = {
     noneBody: 'Mentioned, but nobody used recommending language.',
     more: n => `Show ${n} more`,
     empty: 'Nothing here yet.',
-    foot: '49.3M Hacker News items indexed · every row links back to the comment that recommended it · ranking = distinct people, not raw mentions.',
+    foot: 'An index, nothing more — 49.3M Hacker News items, every row links back to the comment that recommended it, ranking = distinct people. No content is hosted here; links go to Hacker News and the original source.',
     dataset: 'Download the dataset',
     method: 'Method & known errors',
     intro: null,
@@ -44,7 +44,7 @@ const I18N = {
     noneBody: '被提到过，但没有人用推荐的口吻。',
     more: n => `再显示 ${n} 条`,
     empty: '这里还什么都没有。',
-    foot: '已索引 4930 万条 HN 记录 · 每条都能点回推荐它的原评论 · 排名看人数，不看次数。',
+    foot: '这里只是一个索引——已索引 4930 万条 HN 记录，每条都能点回推荐它的原评论，排名看人数不看次数。本站不托管任何内容，链接全部指向 Hacker News 和原始出处。',
     dataset: '下载数据集',
     method: '方法与已知错误',
     intro: [
