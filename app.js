@@ -156,6 +156,9 @@ function renderNote(slug) {
     note = '书名已按权威作品回搜评论（含纯文字提及）；从没被解析过的冷门书仍会漏';
   }
   const el = $('#note');
+  if (state.lang === 'zh' && tab.etype === 'music') {
+    note = '音乐发现：展示独立提及者和含链接的评论数，不等于推荐人数。样本稀疏，未覆盖纯文字歌名；点开查看原话，去原站试听。';
+  }
   el.textContent = note;
   el.style.display = note ? 'block' : 'none';
 }
@@ -237,13 +240,28 @@ function card(r, rank) {
 
   const meta = document.createElement('div');
   meta.className = 'meta';
-  const bits = [`<b>${fmt(r.r)}</b>${T('people')(r.r).replace(/^\s*\d+\s*/, ' ')}`];
+  const isMusic = state.etype === 'music';
+  const bits = [isMusic
+    ? `${fmt(r.p)} ${state.lang === 'zh' ? '位独立评论者提及' : 'independent commenters linked this'}`
+    : `<b>${fmt(r.r)}</b>${T('people')(r.r).replace(/^\s*\d+\s*/, ' ')}`];
   bits.push(T('mentions')(fmt(r.m)));
   if (r.a && r.b) bits.push(r.a === r.b ? r.a : `${r.a}–${r.b}`);
   meta.innerHTML = bits.join('<span class="dot">·</span>');
 
   body.appendChild(a);
   body.appendChild(meta);
+  if (isMusic) {
+    if (r.artist) {
+      const artist = document.createElement('div');
+      artist.textContent = `${r.artist} · ${r.kind === 'album' ? (state.lang === 'zh' ? '专辑' : 'Album') : (state.lang === 'zh' ? '单曲' : 'Track')} · ${r.platform}`;
+      body.appendChild(artist);
+    }
+    const listen = document.createElement('a');
+    listen.href = r.u; listen.target = '_blank'; listen.rel = 'noopener';
+    listen.textContent = state.lang === 'zh' ? '去原站试听 ↗' : 'Listen at source ↗';
+    listen.onclick = e => e.stopPropagation();
+    body.appendChild(listen);
+  }
   row.appendChild(num);
   row.appendChild(body);
 
@@ -254,15 +272,20 @@ function card(r, rank) {
     h.textContent = T('receipts');
     ev.appendChild(h);
     const ul = document.createElement('ul');
-    for (const [id, by, ts, v] of r.e) {
+    for (const [id, by, ts, v, quote] of r.e) {
       const li2 = document.createElement('li');
       const cls = v === 'c' ? 'tag c' : 'tag';
-      const word = v === 'c' ? T('skeptical') : T('recommends');
+      const word = v === 'n' ? (state.lang === 'zh' ? '提及，未判定推荐' : 'mention; stance unverified') : v === 'c' ? T('skeptical') : T('recommends');
       li2.innerHTML =
         `<span class="${cls}">${word}</span>` +
         `<span class="by">${esc(by || '[deleted]')}</span>` +
         ` <span style="color:#8b95a3">${ts}</span> · ` +
         `<a href="${HN(id)}" target="_blank" rel="noopener nofollow">#${id}</a>`;
+      if (quote) {
+        const excerpt = document.createElement('p');
+        excerpt.textContent = quote;
+        li2.appendChild(excerpt);
+      }
       ul.appendChild(li2);
     }
     ev.appendChild(ul);
