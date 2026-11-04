@@ -50,7 +50,7 @@ const I18N = {
     intro: [
       '这是什么：Hacker News 从 2006 年到现在，被不同的人反复推荐的链接，按「推荐人数」排出来的榜。',
       '为什么可信：每条都能点开，看到具体的评论、作者、年份——不是我们说了算。',
-      '哪里不行：只收带链接的推荐。有人在评论里只写书名、不贴链接的，我们抓不到；书那一栏因此偏弱，电影/游戏/播客样本也少。视频、工具、论文三类不受影响。',
+      '哪里不行：书名会被解析成 Open Library 的权威作品，再回搜全部评论（含纯文字提及）。但从没被链接过、Open Library 里也对不上的冷门书仍会漏；电影/游戏/播客样本太少，已经挪进 Other。视频、工具、论文三类不受影响。',
     ],
     tabs: {
       video: '视频', tool: '工具', paper: '论文', book: '书',
@@ -153,7 +153,7 @@ function renderNote(slug) {
   const tab = state.tabs.find(t => t.slug === slug) || {};
   let note = tab.note || '';
   if (state.lang === 'zh' && tab.etype === 'book') {
-    note = '只收带链接的推荐；评论里只提书名、不贴链接的，目前抓不到';
+    note = '书名已按权威作品回搜评论（含纯文字提及）；从没被解析过的冷门书仍会漏';
   }
   const el = $('#note');
   el.textContent = note;
